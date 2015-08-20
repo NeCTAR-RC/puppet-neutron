@@ -221,6 +221,7 @@ class neutron (
   $debug                       = false,
   $bind_host                   = '0.0.0.0',
   $bind_port                   = '9696',
+  $host                        = $::fqdn,
   $core_plugin                 = 'openvswitch',
   $service_plugins             = undef,
   $auth_strategy               = 'keystone',
@@ -351,6 +352,7 @@ class neutron (
     'DEFAULT/api_extensions_path':     value => $api_extensions_path;
     'DEFAULT/state_path':              value => $state_path;
     'DEFAULT/lock_path':               value => $lock_path;
+    'DEFAULT/host':                    value => $host;
     'agent/root_helper':               value => $root_helper;
     'agent/report_interval':           value => $report_interval;
   }
@@ -424,6 +426,7 @@ class neutron (
       'oslo_messaging_rabbit/rabbit_virtual_host':   value => $rabbit_virtual_host;
       'oslo_messaging_rabbit/rabbit_use_ssl':        value => $rabbit_use_ssl;
       'oslo_messaging_rabbit/kombu_reconnect_delay': value => $kombu_reconnect_delay;
+      'oslo_messaging_rabbit/amqp_durable_queues':   value => true;
     }
 
     if $rabbit_use_ssl {
