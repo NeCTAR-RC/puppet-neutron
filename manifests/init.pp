@@ -221,7 +221,7 @@ class neutron (
   $debug                       = false,
   $bind_host                   = '0.0.0.0',
   $bind_port                   = '9696',
-  $host                        = $::fqdn,
+  $host                        = $::hostname,
   $core_plugin                 = 'openvswitch',
   $service_plugins             = undef,
   $auth_strategy               = 'keystone',
