@@ -263,6 +263,7 @@ class neutron (
   $auth_strategy                      = 'keystone',
   $base_mac                           = 'fa:16:3e:00:00:00',
   $mac_generation_retries             = 16,
+  $network_auto_schedule              = true,
   $dhcp_lease_duration                = 86400,
   $dhcp_agents_per_network            = 1,
   $network_device_mtu                 = undef,
@@ -370,6 +371,7 @@ class neutron (
     'DEFAULT/core_plugin':             value => $core_plugin;
     'DEFAULT/base_mac':                value => $base_mac;
     'DEFAULT/mac_generation_retries':  value => $mac_generation_retries;
+    'DEFAULT/network_auto_schedule':   value => $network_auto_schedule;
     'DEFAULT/dhcp_lease_duration':     value => $dhcp_lease_duration;
     'DEFAULT/dhcp_agents_per_network': value => $dhcp_agents_per_network;
     'DEFAULT/dhcp_agent_notification': value => $dhcp_agent_notification;
