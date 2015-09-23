@@ -114,6 +114,7 @@ class neutron::plugins::ml2 (
   $package_ensure            = 'present',
   $supported_pci_vendor_devs = ['15b3:1004', '8086:10ca'],
   $sriov_agent_required      = false,
+  $physical_network_mtus     = undef,
 ) {
 
   include ::neutron::params
@@ -184,6 +185,16 @@ class neutron::plugins::ml2 (
     'ml2/tenant_network_types':             value => join($tenant_network_types, ',');
     'ml2/mechanism_drivers':                value => join($mechanism_drivers, ',');
     'securitygroup/enable_security_group':  value => $enable_security_group;
+  }
+
+  if $physical_network_mtus {
+    neutron_plugin_ml2 {
+      'ml2/physical_network_mtus': value => join($physical_network_mtus, ',');
+    }
+  } else {
+    neutron_plugin_ml2 {
+      'ml2/physical_network_mtus': ensure => absent;
+    }
   }
 
   Neutron_plugin_ml2<||> ~> Exec<| title == 'neutron-db-sync' |>

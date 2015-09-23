@@ -231,6 +231,7 @@ class neutron (
   $dhcp_lease_duration         = 86400,
   $dhcp_agents_per_network     = 1,
   $network_device_mtu          = undef,
+  $advertise_mtu               = false,
   $dhcp_agent_notification     = true,
   $allow_bulk                  = true,
   $allow_pagination            = false,
@@ -388,6 +389,15 @@ class neutron (
     }
   }
 
+  if $advertise_mtu {
+    neutron_config {
+      'DEFAULT/advertise_mtu':           value => $advertise_mtu;
+    }
+  } else {
+    neutron_config {
+      'DEFAULT/advertise_mtu':           ensure => absent;
+    }
+  }
 
   if $service_plugins {
     if is_array($service_plugins) {
