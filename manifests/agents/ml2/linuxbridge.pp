@@ -69,6 +69,7 @@ class neutron::agents::ml2::linuxbridge (
   $vxlan_tos        = false,
   $polling_interval = 2,
   $l2_population    = false,
+  $prevent_arp_spoofing = true,
   $physical_interface_mappings = [],
   $firewall_driver  = 'neutron.agent.linux.iptables_firewall.IptablesFirewallDriver'
 ) {
@@ -118,8 +119,11 @@ class neutron::agents::ml2::linuxbridge (
     }
   }
 
+  ensure_packages(['ebtables',])
+
   neutron_agent_linuxbridge {
     'agent/polling_interval':                   value => $polling_interval;
+    'agent/prevent_arp_spoofing':               value => $prevent_arp_spoofing;
     'linux_bridge/physical_interface_mappings': value => join($physical_interface_mappings, ',');
   }
 
