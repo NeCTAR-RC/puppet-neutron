@@ -120,6 +120,8 @@ class neutron::agents::ml2::linuxbridge (
     }
   }
 
+  ensure_packages(['ebtables',])
+
   neutron_plugin_ml2 {
     'agent/polling_interval':                   value => $polling_interval;
     'agent/prevent_arp_spoofing':               value => $prevent_arp_spoofing;
