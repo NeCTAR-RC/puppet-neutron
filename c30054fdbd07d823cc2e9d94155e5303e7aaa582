@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bad4c104_56e94919",
+        "filename": "spec/classes/neutron_plugins_ml2_midonet_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000077
+      },
+      "writtenOn": "2016-02-11T22:58:40Z",
+      "side": 1,
+      "message": "Should be midonet",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 52
+      },
+      "revId": "c30054fdbd07d823cc2e9d94155e5303e7aaa582",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
