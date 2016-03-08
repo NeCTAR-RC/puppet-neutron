@@ -136,9 +136,6 @@ class neutron::server::notifications (
   $nova_region_name                   = undef,
 ) {
 
-  # Depend on the specified keystone_user resource, if it exists.
-  Keystone_user <| title == 'nova' |> -> Class[neutron::server::notifications]
-
   if ! $nova_admin_password and ! $password {
     fail('nova_admin_password or password must be set.')
   }
