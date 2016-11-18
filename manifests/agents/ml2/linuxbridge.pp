@@ -67,6 +67,8 @@ class neutron::agents::ml2::linuxbridge (
   $package_ensure   = 'present',
   $enabled          = true,
   $manage_service   = true,
+  $package_name     = $::neutron::params::linuxbridge_agent_package,
+  $service_name     = $::neutron::params::linuxbridge_agent_service,
   $tunnel_types     = [],
   $local_ip         = false,
   $vxlan_group      = $::os_service_default,
@@ -122,10 +124,10 @@ class neutron::agents::ml2::linuxbridge (
     neutron_agent_linuxbridge { 'securitygroup/firewall_driver': ensure => absent }
   }
 
-  if $::neutron::params::linuxbridge_agent_package {
+  if $package_name {
     package { 'neutron-plugin-linuxbridge-agent':
       ensure => $package_ensure,
-      name   => $::neutron::params::linuxbridge_agent_package,
+      name   => $package_name,
       tag    => ['openstack', 'neutron-package'],
     }
   } else {
@@ -158,7 +160,7 @@ class neutron::agents::ml2::linuxbridge (
 
   service { 'neutron-plugin-linuxbridge-agent':
     ensure    => $service_ensure,
-    name      => $::neutron::params::linuxbridge_agent_service,
+    name      => $service_name,
     enable    => $enabled,
     require   => Class['neutron'],
     tag       => 'neutron-service',
