@@ -113,7 +113,12 @@ class neutron::params {
     $libnl_package       = 'libnl1'
     $package_provider    = 'dpkg'
 
-    $linuxbridge_agent_package  = 'neutron-linuxbridge-agent'
+    if $::operatingsystemrelease == '14.04' {
+      $linuxbridge_agent_package  = 'neutron-plugin-linuxbridge-agent'
+    }
+    else {
+      $linuxbridge_agent_package  = 'neutron-linuxbridge-agent'
+    }
     $linuxbridge_agent_service  = 'neutron-linuxbridge-agent'
     $linuxbridge_server_package = 'neutron-plugin-linuxbridge'
 
