@@ -49,7 +49,8 @@ describe 'neutron::quota' do
           :quota_packet_filter       => 100,
           :quota_loadbalancer        => 10,
           :quota_pool                => 10,
-          :quota_vip                 => 10
+          :quota_vip                 => 10,
+          :quota_rbac_policy         => 10
         })
       end
 
