@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5ab5e20_21013bdd",
+        "filename": "manifests/quota.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2021-01-29T01:05:03Z",
+      "side": 1,
+      "message": "should be os_service_default",
+      "range": {
+        "startLine": 93,
+        "startChar": 17,
+        "endLine": 93,
+        "endChar": 20
+      },
+      "revId": "ae0c918a912db7fb609c3fec3a05604449f92d65",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
