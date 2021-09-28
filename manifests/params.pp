@@ -16,7 +16,6 @@ class neutron::params {
   $midonet_server_package      = "python${pyvers}-networking-midonet"
   $midonet_server_package_ext  = "python${pyvers}-networking-midonet-ext"
   $midonet_config_file         = '/etc/neutron/plugins/midonet/midonet.ini'
-  $ovn_plugin_package          = "python${pyvers}-networking-ovn"
   $vpp_plugin_package          = "python${pyvers}-networking-vpp"
   $vpp_agent_service           = 'neutron-vpp-agent'
   $plumgrid_plugin_package     = 'networking-plumgrid'
@@ -28,7 +27,7 @@ class neutron::params {
   $metering_agent_service      = 'neutron-metering-agent'
   $l3_agent_service            = 'neutron-l3-agent'
   $metadata_agent_service      = 'neutron-metadata-agent'
-  $ovn_metadata_agent_service  = 'networking-ovn-metadata-agent'
+  $ovn_metadata_agent_service  = 'neutron-ovn-metadata-agent'
   $bgp_dragent_service         = 'neutron-bgp-dragent'
   $bagpipe_bgp_package         = 'openstack-bagpipe-bgp'
   $bgpvpn_bagpipe_package      = "python${pyvers}-networking-bagpipe"
@@ -72,7 +71,7 @@ class neutron::params {
     $vpnaas_agent_package               = 'openstack-neutron-vpnaas'
     $l2gw_agent_package                 = 'openstack-neutron-l2gw-agent'
     $l2gw_package                       = "python${pyvers}-networking-l2gw"
-    $ovn_metadata_agent_package         = "python${pyvers}-networking-ovn-metadata-agent"
+    $ovn_metadata_agent_package         = 'openstack-neutron-ovn-metadata-agent'
     $dynamic_routing_package            = false
     $bgp_dragent_package                = 'openstack-neutron-bgp-dragent'
     if $::operatingsystem == 'Fedora' {
@@ -139,6 +138,7 @@ class neutron::params {
     $fwaas_package              = "python${pyvers}-neutron-fwaas"
     $l2gw_agent_package         = 'neutron-l2gateway-agent'
     $l2gw_package               = "python${pyvers}-networking-l2gw"
+    $ovn_metadata_agent_package = 'neutron-ovn-metadata-agent'
     $neutron_wsgi_script_path   = '/usr/lib/cgi-bin/neutron'
     $neutron_wsgi_script_source = '/usr/bin/neutron-api'
     $mlnx_agent_service         = 'neutron-plugin-mlnx-agent'
