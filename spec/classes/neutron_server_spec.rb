@@ -78,8 +78,8 @@ describe 'neutron::server' do
         params.merge!(:manage_service => false)
       end
 
-      it 'should not start/stop service' do
-        should contain_service('neutron-server').without_ensure
+      it 'should not manage the service' do
+        should_not contain_service('neutron-server')
       end
     end
 

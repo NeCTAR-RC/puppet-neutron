@@ -381,65 +381,54 @@ class neutron::server (
     } else {
       $service_ensure = 'stopped'
     }
-  }
 
-  # $service_name is the old 'neutron-server' service. If it is in use,
-  # then we don't need to start neutron-api and neutron-rpc-server. If
-  # it is not, then we must start neutron-api and neutron-rpc-server instead.
-  if $service_name {
-    if $service_name == $::neutron::params::server_service {
-      service { 'neutron-server':
-        ensure     => $service_ensure,
-        name       => $::neutron::params::server_service,
-        enable     => $enabled,
-        hasstatus  => true,
-        hasrestart => true,
-        tag        => ['neutron-service', 'neutron-db-sync-service', 'neutron-server-eventlet'],
+    # $service_name is the old 'neutron-server' service. If it is in use,
+    # then we don't need to start neutron-api and neutron-rpc-server. If
+    # it is not, then we must start neutron-api and neutron-rpc-server instead.
+    if $service_name {
+      if $service_name == $::neutron::params::server_service {
+        service { 'neutron-server':
+          ensure     => $service_ensure,
+          name       => $::neutron::params::server_service,
+          enable     => $enabled,
+          hasstatus  => true,
+          hasrestart => true,
+          tag        => ['neutron-service', 'neutron-db-sync-service', 'neutron-server-eventlet'],
+        }
+      } elsif $service_name == 'httpd' {
+        include apache::params
+        service { 'neutron-server':
+          ensure     => 'stopped',
+          name       => $::neutron::params::server_service,
+          enable     => false,
+          hasstatus  => true,
+          hasrestart => true,
+          tag        => ['neutron-service', 'neutron-db-sync-service'],
+        }
+        Service <| title == 'httpd' |> { tag +> 'neutron-service' }
+        # we need to make sure neutron-server is stopped before trying to start apache
+        Service[$::neutron::params::server_service] -> Service[$service_name]
+      } else {
+        # backward compatibility so operators can customize the service name.
+        service { 'neutron-server':
+          ensure     => $service_ensure,
+          name       => $service_name,
+          enable     => $enabled,
+          hasstatus  => true,
+          hasrestart => true,
+          tag        => ['neutron-service', 'neutron-db-sync-service'],
+        }
       }
-    } elsif $service_name == 'httpd' {
-      include apache::params
-      service { 'neutron-server':
-        ensure     => 'stopped',
-        name       => $::neutron::params::server_service,
-        enable     => false,
-        hasstatus  => true,
-        hasrestart => true,
-        tag        => ['neutron-service', 'neutron-db-sync-service'],
-      }
-      Service <| title == 'httpd' |> { tag +> 'neutron-service' }
-      # we need to make sure neutron-server is stopped before trying to start apache
-      Service[$::neutron::params::server_service] -> Service[$service_name]
     } else {
-      # backward compatibility so operators can customize the service name.
-      service { 'neutron-server':
-        ensure     => $service_ensure,
-        name       => $service_name,
-        enable     => $enabled,
-        hasstatus  => true,
-        hasrestart => true,
-        tag        => ['neutron-service', 'neutron-db-sync-service'],
-      }
-    }
-  } else {
-    if $api_service_name {
-      service { 'neutron-server':
-        ensure     => $service_ensure,
-        name       => $api_service_name,
-        enable     => $enabled,
-        hasstatus  => true,
-        hasrestart => true,
-        tag        => ['neutron-service', 'neutron-db-sync-service', 'neutron-server-eventlet'],
-      }
-    }
-
-    if $rpc_service_name {
-      service { 'neutron-rpc-server':
-        ensure     => $service_ensure,
-        name       => $rpc_service_name,
-        enable     => $enabled,
-        hasstatus  => true,
-        hasrestart => true,
-        tag        => ['neutron-service', 'neutron-db-sync-service'],
+      if $rpc_service_name {
+        service { 'neutron-rpc-server':
+          ensure     => $service_ensure,
+          name       => $rpc_service_name,
+          enable     => $enabled,
+          hasstatus  => true,
+          hasrestart => true,
+          tag        => ['neutron-service', 'neutron-db-sync-service'],
+        }
       }
     }
   }

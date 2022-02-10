@@ -89,6 +89,17 @@ describe 'neutron::agents::ml2::networking_baremetal' do
         should contain_service('ironic-neutron-agent-service').that_notifies('Anchor[neutron::service::end]')
       end
     end
+
+    context 'with manage_service as false' do
+      before :each do
+        params.merge!(:manage_service => false)
+      end
+
+      it 'should not manage the service' do
+        should_not contain_service('ironic-neutron-agent-service')
+      end
+    end
+
   end
 
   on_supported_os({
