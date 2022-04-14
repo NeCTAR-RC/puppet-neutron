@@ -75,6 +75,10 @@
 # [*plugin_nvp_config*]
 #   (optional) Manage configuration of /etc/neutron/plugins/nicira/nvp.ini
 #
+# [*plugin_midonet_config*]
+#   (optional) Manage configuration of plugins/midonet/midonet.ini
+#
+#   NOTE: The configuration MUST NOT be already handled by this module
 # [*plugin_opencontrail_config*]
 #   (optional) Manage configuration of plugins/opencontrail/ContrailPlugin.ini
 #
@@ -89,10 +93,6 @@
 #
 # DEPRECATED PARAMETERS
 #
-# [*plugin_midonet_config*]
-#   (optional) Manage configuration of plugins/midonet/midonet.ini
-#
-#   NOTE: The configuration MUST NOT be already handled by this module
 #   or Puppet catalog compilation will fail with duplicate resources.
 #
 class neutron::config (
@@ -113,20 +113,15 @@ class neutron::config (
   $vpnaas_agent_config           = {},
   $bgp_dragent_config            = {},
   $plugin_linuxbridge_config     = {},
+  $plugin_midonet_config         = {},
   $plugin_opencontrail_config    = {},
   $plugin_nuage_config           = {},
   $plugin_ml2_config             = {},
   $plugin_nsx_config             = {},
   $plugin_nvp_config             = {},
-  # DEPRECATED PARAMETERS
-  $plugin_midonet_config         = undef,
 ) {
 
   include neutron::deps
-
-  if $plugin_midonet_config != undef {
-    warning('The plugin_midonet_config parameter has been deprecated and has no effect')
-  }
 
   validate_legacy(Hash, 'validate_hash', $server_config)
   validate_legacy(Hash, 'validate_hash', $api_paste_ini)
@@ -145,6 +140,7 @@ class neutron::config (
   validate_legacy(Hash, 'validate_hash', $vpnaas_agent_config)
   validate_legacy(Hash, 'validate_hash', $bgp_dragent_config)
   validate_legacy(Hash, 'validate_hash', $plugin_linuxbridge_config)
+  validate_legacy(Hash, 'validate_hash', $plugin_midonet_config)
   validate_legacy(Hash, 'validate_hash', $plugin_opencontrail_config)
   validate_legacy(Hash, 'validate_hash', $plugin_nuage_config)
   validate_legacy(Hash, 'validate_hash', $plugin_ml2_config)
@@ -166,6 +162,7 @@ class neutron::config (
   create_resources('neutron_vpnaas_agent_config', $vpnaas_agent_config)
   create_resources('neutron_bgp_dragent_config', $bgp_dragent_config)
   create_resources('neutron_plugin_linuxbridge', $plugin_linuxbridge_config)
+  create_resources('neutron_plugin_midonet', $plugin_midonet_config)
   create_resources('neutron_plugin_opencontrail', $plugin_opencontrail_config)
   create_resources('neutron_plugin_nuage', $plugin_nuage_config)
   create_resources('neutron_plugin_ml2', $plugin_ml2_config)

@@ -1,6 +1,5 @@
 # == Class: neutron::plugins::ml2::midonet
 #
-# DEPRECATED !
 # Configure the Mech Driver for midonet neutron plugin
 #
 # === Parameters:
@@ -28,6 +27,11 @@ class neutron::plugins::ml2::midonet (
 
   include neutron::deps
 
-  warning('Support for the midonet plugin has been deprecated and has no effect')
+  neutron_plugin_ml2 {
+    'MIDONET/midonet_uri' : value => $midonet_uri;
+    'MIDONET/username'    : value => $username;
+    'MIDONET/password'    : value => $password, secret => true;
+    'MIDONET/project_id'  : value => $project_id;
+  }
 
 }

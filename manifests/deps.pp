@@ -49,6 +49,7 @@ class neutron::deps {
   Anchor['neutron::config::begin'] -> Neutron_bgp_dragent_config<||> ~> Anchor['neutron::config::end']
   Anchor['neutron::config::begin'] -> Neutron_plugin_linuxbridge<||> ~> Anchor['neutron::config::end']
   Anchor['neutron::config::begin'] -> Neutron_l2gw_service_config<||> ~> Anchor['neutron::config::end']
+  Anchor['neutron::config::begin'] -> Neutron_plugin_midonet<||> ~> Anchor['neutron::config::end']
   Anchor['neutron::config::begin'] -> Neutron_plugin_ml2<||> ~> Anchor['neutron::config::end']
   Anchor['neutron::config::begin'] -> Neutron_plugin_nuage<||> ~> Anchor['neutron::config::end']
   Anchor['neutron::config::begin'] -> Neutron_plugin_nvp<||> ~> Anchor['neutron::config::end']
