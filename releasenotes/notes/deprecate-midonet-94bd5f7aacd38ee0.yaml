@@ -1,5 +1,0 @@
----
-deprecations:
-  - |
-    Support for the midonet plugin has been deprecated and has no effect now.
-    It will be removed completely in a future release.
