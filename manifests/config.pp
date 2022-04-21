@@ -87,6 +87,11 @@
 # [*plugin_nsx_config*]
 #   (optional) Manage configuration of plugins/vmware/nsx.ini
 #
+# DEPRECATED PARAMETERS
+#
+# [*plugin_midonet_config*]
+#   (optional) Manage configuration of plugins/midonet/midonet.ini
+#
 #   NOTE: The configuration MUST NOT be already handled by this module
 #   or Puppet catalog compilation will fail with duplicate resources.
 #
@@ -113,9 +118,15 @@ class neutron::config (
   $plugin_ml2_config             = {},
   $plugin_nsx_config             = {},
   $plugin_nvp_config             = {},
+  # DEPRECATED PARAMETERS
+  $plugin_midonet_config         = undef,
 ) {
 
   include neutron::deps
+
+  if $plugin_midonet_config != undef {
+    warning('The plugin_midonet_config parameter has been deprecated and has no effect')
+  }
 
   validate_legacy(Hash, 'validate_hash', $server_config)
   validate_legacy(Hash, 'validate_hash', $api_paste_ini)
