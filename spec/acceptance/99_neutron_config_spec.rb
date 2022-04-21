@@ -13,6 +13,7 @@ describe 'basic neutron_config resource' do
                      '/etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini',
                      '/etc/neutron/plugins/ml2/ml2_conf.ini',
                      '/etc/neutron/vpn_agent.ini',
+                     '/etc/neutron/plugins/midonet/midonet.ini',
                      '/etc/neutron/plugins/opencontrail/ContrailPlugin.ini',
                      '/etc/neutron/plugins/vmware/nsx.ini',
                      '/etc/neutron/plugins/ml2/sriov_agent.ini',
@@ -31,6 +32,7 @@ describe 'basic neutron_config resource' do
   File <||> -> Neutron_plugin_ml2 <||>
   File <||> -> Neutron_l2gw_service_config <||>
   File <||> -> Neutron_vpnaas_agent_config <||>
+  File <||> -> Neutron_plugin_midonet <||>
   File <||> -> Neutron_plugin_opencontrail <||>
   File <||> -> Neutron_agent_linuxbridge <||>
   File <||> -> Neutron_agent_ovs <||>
@@ -45,6 +47,7 @@ describe 'basic neutron_config resource' do
                           '/etc/neutron/plugins/linuxbridge',
                           '/etc/neutron/plugins/ml2',
                           '/etc/neutron/plugins/nicira',
+                          '/etc/neutron/plugins/midonet',
                           '/etc/neutron/plugins/opencontrail',
                           '/etc/neutron/plugins/vmware']
 
@@ -59,6 +62,7 @@ describe 'basic neutron_config resource' do
                      '/etc/neutron/plugins/linuxbridge/linuxbridge_conf.ini',
                      '/etc/neutron/plugins/ml2/ml2_conf.ini',
                      '/etc/neutron/vpn_agent.ini',
+                     '/etc/neutron/plugins/midonet/midonet.ini',
                      '/etc/neutron/plugins/opencontrail/ContrailPlugin.ini',
                      '/etc/neutron/plugins/vmware/nsx.ini',
                      '/etc/neutron/plugins/ml2/sriov_agent.ini',
@@ -233,6 +237,24 @@ describe 'basic neutron_config resource' do
     ensure_absent_val => 'toto',
   }
 
+  neutron_plugin_midonet { 'DEFAULT/thisshouldexist' :
+    value => 'foo',
+  }
+
+  neutron_plugin_midonet { 'DEFAULT/thisshouldnotexist' :
+    value => '<SERVICE DEFAULT>',
+  }
+
+  neutron_plugin_midonet { 'DEFAULT/thisshouldexist2' :
+    value             => '<SERVICE DEFAULT>',
+    ensure_absent_val => 'toto',
+  }
+
+  neutron_plugin_midonet { 'DEFAULT/thisshouldnotexist2' :
+    value             => 'toto',
+    ensure_absent_val => 'toto',
+  }
+
   neutron_plugin_opencontrail { 'DEFAULT/thisshouldexist' :
     value => 'foo',
   }
@@ -388,6 +410,7 @@ describe 'basic neutron_config resource' do
                     'neutron_metering_agent_config',
                     'neutron_plugin_ml2',
                     'neutron_vpnaas_agent_config',
+                    'neutron_plugin_midonet',
                     'neutron_plugin_opencontrail',
                     'neutron_agent_linuxbridge',
                     'neutron_agent_ovs',

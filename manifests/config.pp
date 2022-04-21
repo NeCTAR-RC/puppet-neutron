@@ -95,6 +95,9 @@
 # [*linuxbridge_agent_config*]
 #   (optional) Manage configuration of linuxbridge_agent.ini
 #
+# [*plugin_midonet_config*]
+#   (optional) Manage configuration of plugins/midonet/midonet.ini
+#
 #   NOTE: The configuration MUST NOT be already handled by this module
 #   or Puppet catalog compilation will fail with duplicate resources.
 #
@@ -124,6 +127,7 @@ class neutron::config (
   $plugin_linuxbridge_config     = undef,
   $plugin_nsx_config             = undef,
   $linuxbridge_agent_config      = undef,
+  $plugin_midonet_config         = undef,
 ) {
 
   include neutron::deps
@@ -148,6 +152,10 @@ class neutron::config (
     $linuxbridge_agent_config_real = $linuxbridge_agent_config
   } else {
     $linuxbridge_agent_config_real = {}
+  }
+
+  if $plugin_midonet_config != undef {
+    warning('The plugin_midonet_config parameter has been deprecated and has no effect')
   }
 
   validate_legacy(Hash, 'validate_hash', $server_config)
