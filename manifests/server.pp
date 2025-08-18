@@ -16,24 +16,6 @@
 #   (Optional) Whether to start/stop the service
 #   Defaults to true
 #
-# [*service_name*]
-#   (Optional) Name of the service that will be providing the
-#   server functionality of neutron-api.
-#   If the value is 'httpd', this means neutron API will be a web
-#   service, and you must use another class to configure that
-#   web service. For example, use class { 'neutron::wsgi::apache'...}
-#   to make neutron-api be a web app using apache mod_wsgi.
-#   If set to false, then neutron-server isn't in use, and we will
-#   be using neutron-api and neutron-rpc-server instead.
-#   Defaults to $::neutron::params::server_service
-#
-# [*server_package*]
-#   (Optional) Name of the package holding neutron-server.
-#   If service_name is set to false, then this also must be
-#   set to false. With false, no package will be installed
-#   before running the neutron-server service.
-#   Defaults to $::neutron::params::server_package
-#
 # [*api_package_name*]
 #   (Optional) Name of the package holding neutron-api.
 #   If this parameter is set to false,
@@ -251,12 +233,18 @@
 #   that is required to start neutron service if bgp service_plugin is enabled.
 #   Defaults to false
 #
+# [*service_name*]
+#   (Optional) Name of the service that will be providing neutron-server.
+#   Defaults to undef
+#
+# [*server_package*]
+#   (Optional) Name of the package holding neutron-server.
+#   Defaults to undef
+#
 class neutron::server (
   $package_ensure                   = 'present',
   Boolean $enabled                  = true,
   Boolean $manage_service           = true,
-  $service_name                     = $::neutron::params::server_service,
-  $server_package                   = $::neutron::params::server_package,
   $api_package_name                 = $::neutron::params::api_package_name,
   $api_service_name                 = $::neutron::params::api_service_name,
   $rpc_package_name                 = $::neutron::params::rpc_package_name,
@@ -298,6 +286,8 @@ class neutron::server (
   $enable_default_route_bfd         = $facts['os_service_default'],
   # DEPRECATED PARAMETERS
   Boolean $ensure_dr_package        = false,
+  $service_name                     = undef,
+  $server_package                   = undef,
 ) inherits neutron::params {
 
   include neutron::deps
@@ -318,6 +308,13 @@ Use the neutron::services::dr class instead.")
       name   => $::neutron::params::dynamic_routing_package,
       tag    => ['openstack', 'neutron-package'],
     })
+  }
+
+  if $service_name != undef {
+    warning('The service_name parameter is deprecated')
+    if $service_name {
+      fail('The moonolithic neutron-service is no longer supported')
+    }
   }
 
   if $sync_db {
@@ -356,37 +353,27 @@ Use the neutron::services::dr class instead.")
     'DEFAULT/enable_default_route_bfd':         value => $enable_default_route_bfd;
   }
 
-  if $service_name {
-    if $server_package {
-      package { 'neutron-server':
-        ensure => $package_ensure,
-        name   => $::neutron::params::server_package,
-        tag    => ['openstack', 'neutron-package'],
-      }
+  if $api_package_name {
+    package { 'neutron-api':
+      ensure => $package_ensure,
+      name   => $api_package_name,
+      tag    => ['openstack', 'neutron-package'],
     }
-  } else {
-    if $api_package_name {
-      package { 'neutron-api':
-        ensure => $package_ensure,
-        name   => $api_package_name,
-        tag    => ['openstack', 'neutron-package'],
-      }
-    }
+  }
 
-    if $rpc_service_name {
-      package { 'neutron-rpc-server':
-        ensure => $package_ensure,
-        name   => $rpc_package_name,
-        tag    => ['openstack', 'neutron-package'],
-      }
+  if $rpc_service_name {
+    package { 'neutron-rpc-server':
+      ensure => $package_ensure,
+      name   => $rpc_package_name,
+      tag    => ['openstack', 'neutron-package'],
     }
+  }
 
-    if $periodic_workers_service_name {
-      package { 'neutron-periodic-workers':
-        ensure => $package_ensure,
-        name   => $periodic_workers_package_name,
-        tag    => ['openstack', 'neutron-package'],
-      }
+  if $periodic_workers_service_name {
+    package { 'neutron-periodic-workers':
+      ensure => $package_ensure,
+      name   => $periodic_workers_package_name,
+      tag    => ['openstack', 'neutron-package'],
     }
   }
 
@@ -406,121 +393,55 @@ Use the neutron::services::dr class instead.")
       $service_ensure = 'stopped'
     }
 
-    # $service_name is the old 'neutron-server' service. If it is in use,
-    # then we don't need to start neutron-api and neutron-rpc-server. If
-    # it is not, then we must start neutron-api and neutron-rpc-server instead.
-    if $service_name {
-      if $service_name == $::neutron::params::server_service {
-        service { 'neutron-server':
-          ensure     => $service_ensure,
-          name       => $::neutron::params::server_service,
-          enable     => $enabled,
-          hasstatus  => true,
-          hasrestart => true,
-          tag        => ['neutron-service', 'neutron-server-eventlet'],
-        }
-        Neutron_api_paste_ini<||> ~> Service['neutron-server']
+    if $api_service_name == 'httpd' {
+      Service <| title == 'httpd' |> { tag +> 'neutron-service' }
 
-      } elsif $service_name == 'httpd' {
-        fail('Use api_service_name and rpc_service_name to run api service by httpd')
-
-      } else {
-        warning('Support for arbitrary service name is deprecated')
-        # backward compatibility so operators can customize the service name.
-        service { 'neutron-server':
-          ensure     => $service_ensure,
-          name       => $service_name,
-          enable     => $enabled,
-          hasstatus  => true,
-          hasrestart => true,
-          tag        => ['neutron-service'],
-        }
-      }
-
-    } else {
-      if $::neutron::params::server_service {
-        # we need to make sure neutron-server is stopped before trying to
-        # start separate services.
-        service { 'neutron-server':
+      if $neutron::params::api_service_name {
+        # we need to make sure api service is stopped before trying to
+        # start apache
+        service { 'neutron-api':
           ensure     => 'stopped',
-          name       => $::neutron::params::server_service,
+          name       => $neutron::params::api_service_name,
           enable     => false,
           hasstatus  => true,
           hasrestart => true,
           tag        => ['neutron-service'],
         }
+        Service['neutron-api'] -> Service[$api_service_name]
+      }
+    } else {
+      service { 'neutron-api':
+        ensure     => $service_ensure,
+        name       => $api_service_name,
+        enable     => $enabled,
+        hasstatus  => true,
+        hasrestart => true,
+        tag        => ['neutron-service'],
       }
 
-      if $api_service_name {
-        if $api_service_name == 'httpd' {
-          Service <| title == 'httpd' |> { tag +> 'neutron-service' }
-          Neutron_api_paste_ini<||> ~> Service[$api_service_name]
+      Neutron_api_paste_ini<||> ~> Service['neutron-api']
+      Neutron_api_uwsgi_config<||> ~> Service['neutron-api']
+    }
 
-          if $::neutron::params::server_service {
-            Service['neutron-server'] -> Service[$api_service_name]
-          }
-
-          if $::neutron::params::api_service_name {
-            # we need to make sure api service is stopped before trying to
-            # start apache
-            service { 'neutron-api':
-              ensure     => 'stopped',
-              name       => $::neutron::params::api_service_name,
-              enable     => false,
-              hasstatus  => true,
-              hasrestart => true,
-              tag        => ['neutron-service'],
-            }
-            Service['neutron-api'] -> Service[$api_service_name]
-          }
-
-        } else {
-          service { 'neutron-api':
-            ensure     => $service_ensure,
-            name       => $api_service_name,
-            enable     => $enabled,
-            hasstatus  => true,
-            hasrestart => true,
-            tag        => ['neutron-service', 'neutron-server-eventlet'],
-          }
-
-          Neutron_api_paste_ini<||> ~> Service['neutron-api']
-          Neutron_api_uwsgi_config<||> ~> Service['neutron-api']
-
-          if $::neutron::params::server_service {
-            Service['neutron-server'] -> Service['neutron-api']
-          }
-        }
+    if $rpc_service_name {
+      service { 'neutron-rpc-server':
+        ensure     => $service_ensure,
+        name       => $rpc_service_name,
+        enable     => $enabled,
+        hasstatus  => true,
+        hasrestart => true,
+        tag        => ['neutron-service'],
       }
+    }
 
-      if $rpc_service_name {
-        service { 'neutron-rpc-server':
-          ensure     => $service_ensure,
-          name       => $rpc_service_name,
-          enable     => $enabled,
-          hasstatus  => true,
-          hasrestart => true,
-          tag        => ['neutron-service'],
-        }
-
-        if $::neutron::params::server_service {
-          Service['neutron-server'] -> Service['neutron-rpc-server']
-        }
-      }
-
-      if $periodic_workers_service_name {
-        service { 'neutron-periodic-workers':
-          ensure     => $service_ensure,
-          name       => $periodic_workers_service_name,
-          enable     => $enabled,
-          hasstatus  => true,
-          hasrestart => true,
-          tag        => ['neutron-service'],
-        }
-
-        if $::neutron::params::server_service {
-          Service['neutron-server'] -> Service['neutron-periodic-workers']
-        }
+    if $periodic_workers_service_name {
+      service { 'neutron-periodic-workers':
+        ensure     => $service_ensure,
+        name       => $periodic_workers_service_name,
+        enable     => $enabled,
+        hasstatus  => true,
+        hasrestart => true,
+        tag        => ['neutron-service'],
       }
     }
   }
