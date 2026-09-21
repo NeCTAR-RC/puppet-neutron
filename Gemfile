@@ -33,4 +33,5 @@ else
   gem 'puppet', :require => false
 end
 
+gem "json", "< 3.0"
 # vim:ft=ruby
